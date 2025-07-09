@@ -6,6 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "mcp-google-oauth",
 	"main": "src/index.ts",
+	"account_id": "5387a0d62fcd268ee140a0a9a5a6ea22",
 	"compatibility_date": "2025-03-10",
 	"compatibility_flags": ["nodejs_compat"],
 	"migrations": [
@@ -25,7 +26,7 @@
 	"kv_namespaces": [
 	  {
 		"binding": "OAUTH_KV",
-		"id": "<Add-KV-ID>"
+		"id": "f33bee45b261427fb4650bc50c0d8998"
 	  }
 	],
 	"observability": {
