@@ -4,7 +4,7 @@
  */
  {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "mcp-google-oauth",
+	"name": "a6-crm-mcp",
 	"main": "src/index.ts",
 	"account_id": "5387a0d62fcd268ee140a0a9a5a6ea22",
 	"compatibility_date": "2025-03-10",
