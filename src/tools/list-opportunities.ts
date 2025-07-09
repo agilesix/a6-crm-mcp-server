@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createSupabaseClient } from "./supabase-client";
+import { createSupabaseClient } from "../lib/services/supabase-client";
 
 export const listOpportunitiesSchema = {
 	status: z.enum(["Not Started", "Pre-Capture", "Capture", "Proposal", "Submitted", "Won", "Lost", "No Bid"]).optional(),

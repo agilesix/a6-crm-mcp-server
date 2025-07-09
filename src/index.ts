@@ -5,7 +5,7 @@ import { GoogleHandler } from "./google-handler";
 
 // Tool imports
 import { listOpportunities, listOpportunitiesSchema } from "./tools/list-opportunities";
-import { createOpportunity, createOpportunitySchema } from "./tools/create-opportunity";
+import { createOpportunity, getCreateOpportunitySchema } from "./tools/create-opportunity";
 import { updateOpportunity, updateOpportunitySchema } from "./tools/update-opportunity";
 import { getOpportunity, getOpportunitySchema } from "./tools/get-opportunity";
 import { deleteOpportunity, deleteOpportunitySchema } from "./tools/delete-opportunity";
@@ -85,10 +85,10 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 			}
 		);
 
-		// Create opportunity tool
+		// Create opportunity tool with dynamic schema
 		this.server.tool(
 			"create_opportunity",
-			createOpportunitySchema,
+			await getCreateOpportunitySchema(),
 			async (params) => {
 				// Check permissions
 				if (!this.checkPermission("create_opportunity")) {

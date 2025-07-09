@@ -11,11 +11,12 @@ import { checkMcpAccess, updateLastLogin } from "./mcp-auth";
 const app = new Hono<{ Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers } }>();
 
 app.get("/authorize", async (c) => {
-	const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
-	const { clientId } = oauthReqInfo;
-	if (!clientId) {
-		return c.text("Invalid request", 400);
-	}
+	try {
+		const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
+		const { clientId } = oauthReqInfo;
+		if (!clientId) {
+			return c.text("Invalid request: missing client_id", 400);
+		}
 
 	if (
 		await clientIdAlreadyApproved(c.req.raw, oauthReqInfo.clientId, c.env.COOKIE_ENCRYPTION_KEY)
@@ -26,20 +27,29 @@ app.get("/authorize", async (c) => {
 	return renderApprovalDialog(c.req.raw, {
 		client: await c.env.OAUTH_PROVIDER.lookupClient(clientId),
 		server: {
-			description: "This MCP Server is a demo for Google OAuth.",
-			name: "Google OAuth Demo",
+			description: "MCP Server for Agile Six CRM opportunity management with Supabase integration.",
+			name: "Agile Six CRM MCP Server",
 		},
 		state: { oauthReqInfo },
 	});
+	} catch (error) {
+		console.error("OAuth authorize error:", error);
+		return c.text(`OAuth error: ${error instanceof Error ? error.message : "Unknown error"}`, 500);
+	}
 });
 
 app.post("/authorize", async (c) => {
-	const { state, headers } = await parseRedirectApproval(c.req.raw, c.env.COOKIE_ENCRYPTION_KEY);
-	if (!state.oauthReqInfo) {
-		return c.text("Invalid request", 400);
-	}
+	try {
+		const { state, headers } = await parseRedirectApproval(c.req.raw, c.env.COOKIE_ENCRYPTION_KEY);
+		if (!state.oauthReqInfo) {
+			return c.text("Invalid request: missing OAuth request info", 400);
+		}
 
-	return redirectToGoogle(c, state.oauthReqInfo, headers);
+		return redirectToGoogle(c, state.oauthReqInfo, headers);
+	} catch (error) {
+		console.error("OAuth POST authorize error:", error);
+		return c.text(`OAuth POST error: ${error instanceof Error ? error.message : "Unknown error"}`, 500);
+	}
 });
 
 async function redirectToGoogle(

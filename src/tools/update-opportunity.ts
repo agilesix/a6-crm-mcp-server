@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createSupabaseClient } from "./supabase-client";
+import { createSupabaseClient } from "../lib/services/supabase-client";
 
 export const updateOpportunitySchema = {
 	id: z.string().uuid("Valid UUID required"),
