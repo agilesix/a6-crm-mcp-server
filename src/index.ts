@@ -5,7 +5,7 @@ import { GoogleHandler } from "./google-handler";
 
 // Tool imports
 import { listOpportunities, listOpportunitiesSchema } from "./tools/list-opportunities";
-import { createOpportunity, getCreateOpportunitySchema } from "./tools/create-opportunity";
+import { createOpportunity, createOpportunitySchema } from "./tools/create-opportunity";
 import { updateOpportunity, updateOpportunitySchema } from "./tools/update-opportunity";
 import { getOpportunity, getOpportunitySchema } from "./tools/get-opportunity";
 import { deleteOpportunity, deleteOpportunitySchema } from "./tools/delete-opportunity";
@@ -85,10 +85,10 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 			}
 		);
 
-		// Create opportunity tool with dynamic schema
+		// Create opportunity tool
 		this.server.tool(
 			"create_opportunity",
-			await getCreateOpportunitySchema(),
+			createOpportunitySchema,
 			async (params) => {
 				// Check permissions
 				if (!this.checkPermission("create_opportunity")) {
@@ -168,7 +168,7 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 						content: [
 							{
 								type: "text",
-								text: `Opportunity Details:\n• ID: ${opp.id}\n• Name: ${opp.opportunity_name}\n• Agency: ${opp.agency}\n• Vehicle: ${opp.vehicle || "Not specified"}\n• Sub-vehicle: ${opp.sub_vehicle || "Not specified"}\n• Type: ${opp.type || "Not specified"}\n• Priority: ${opp.priority || "Not specified"}\n• Status: ${opp.status || "Not Started"}\n• RFI Due: ${opp.rfi_due || "Not specified"}\n• RFI Submitted: ${opp.rfi_submitted ? "Yes" : "No"}\n• Anticipated Solicitation Release: ${opp.anticipated_solicitation_release || "Not specified"}\n• Anticipated Award: ${opp.anticipated_award || "Not specified"}\n• Actual Solicitation Release: ${opp.actual_solicitation_release || "Not specified"}\n• Submission Due: ${opp.submission_due || "Not specified"}\n• Award Date: ${opp.award_date || "Not specified"}\n• Start Date: ${opp.start_date || "Not specified"}\n• Bidding Entity: ${opp.bidding_entity || "Not specified"}\n• Prime/Sub: ${opp.prime_sub || "Not specified"}\n• Prime Name/Partners: ${opp.prime_name_or_partners || "Not specified"}\n• New/Recompete: ${opp.new_recompete || "Not specified"}\n• Outcome: ${opp.outcome || "Not specified"}\n• Awardee: ${opp.awardee || "Not specified"}\n• Period of Performance: ${opp.period_of_performance || "Not specified"}\n• Estimated Value: ${opp.est_value ? `$${opp.est_value.toLocaleString()}` : "Not specified"}\n• Estimated FTE: ${opp.est_fte || "Not specified"}\n• Notes: ${opp.notes || "None"}\n• Created: ${opp.created_at}\n• Updated: ${opp.updated_at}`,
+								text: `Opportunity Details:\n• ID: ${opp.id}\n• Name: ${opp.opportunity_name}\n• Agency: ${opp.agency}\n• Vehicle: ${opp.vehicle || "Not specified"}\n• Sub-vehicle: ${opp.sub_vehicle || "Not specified"}\n• Type: ${opp.type || "Not specified"}\n• Priority: ${opp.priority || "Not specified"}\n• Status: ${opp.status || "Not Started"}\n• Probability: ${opp.probability !== undefined ? `${opp.probability}%` : "Not specified"}\n• Solicitation Number: ${opp.solicitation_number || "Not specified"}\n• RFI Due: ${opp.rfi_due || "Not specified"}\n• RFI Submitted: ${opp.rfi_submitted ? "Yes" : "No"}\n• Anticipated Solicitation Release: ${opp.anticipated_solicitation_release || "Not specified"}\n• Anticipated Award: ${opp.anticipated_award || "Not specified"}\n• Actual Solicitation Release: ${opp.actual_solicitation_release || "Not specified"}\n• Submission Due: ${opp.submission_due || "Not specified"}\n• Award Date: ${opp.award_date || "Not specified"}\n• Start Date: ${opp.start_date || "Not specified"}\n• Bidding Entity: ${opp.bidding_entity || "Not specified"}\n• Prime/Sub: ${opp.prime_sub || "Not specified"}\n• New/Recompete: ${opp.new_recompete || "Not specified"}\n• Outcome: ${opp.outcome || "Not specified"}\n• Awardee: ${opp.awardee || "Not specified"}\n• Period of Performance: ${opp.period_of_performance || "Not specified"}\n• Estimated Value: ${opp.est_value ? `$${opp.est_value.toLocaleString()}` : "Not specified"}\n• Estimated FTE: ${opp.est_fte || "Not specified"}\n• LCATs: ${opp.lcats || "Not specified"}\n• Project Deliverables: ${opp.project_deliverables || "Not specified"}\n• Partner ID: ${opp.partner_id || "Not specified"}\n• Notes: ${opp.notes || "None"}\n• AI Research: ${opp.ai_research || "None"}\n• Created: ${opp.created_at}\n• Updated: ${opp.updated_at}`,
 							},
 						],
 					};

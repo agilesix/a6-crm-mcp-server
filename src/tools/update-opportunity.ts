@@ -20,7 +20,7 @@ export const updateOpportunitySchema = {
 	start_date: z.string().optional(),
 	bidding_entity: z.string().optional(),
 	prime_sub: z.enum(["Prime", "Sub"]).optional(),
-	prime_name_or_partners: z.string().optional(),
+	// prime_name_or_partners field has been removed from the table
 	new_recompete: z.enum(["New", "Recompete", "Vehicle"]).optional(),
 	outcome: z.string().optional(),
 	awardee: z.string().optional(),
@@ -28,17 +28,29 @@ export const updateOpportunitySchema = {
 	est_value: z.number().optional(),
 	est_fte: z.number().optional(),
 	notes: z.string().optional(),
-	owner_id: z.string().optional(),
+	ai_research: z.string().optional().describe("AI research notes and analysis in markdown format. Use this field to store detailed research, analysis, competitive intelligence, and strategic insights about the opportunity."),
+	// New fields added to the table
+	partner_id: z.string().uuid().optional(),
+	project_deliverables: z.string().optional(),
+	lcats: z.string().optional(),
+	solicitation_number: z.string().optional(),
+	probability: z.number().int().min(0).max(100).optional(),
+	// owner_id removed - not applicable for MCP anonymous access
 };
 
 export async function updateOpportunity(params: any) {
 	const supabase = createSupabaseClient();
 	
-	const { id, ...updateData } = params;
+	const { id, owner_id, ...updateData } = params;
+	
+	// Only include owner_id if it's a valid UUID and not empty
+	const dataToUpdate = owner_id && owner_id !== '' 
+		? { ...updateData, owner_id }
+		: updateData;
 	
 	const { data, error } = await supabase
 		.from("opportunities")
-		.update(updateData)
+		.update(dataToUpdate)
 		.eq("id", id)
 		.select()
 		.single();

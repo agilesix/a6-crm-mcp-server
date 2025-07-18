@@ -35,7 +35,6 @@ export interface Opportunity {
 	start_date?: string;
 	bidding_entity?: string;
 	prime_sub?: PrimeSubType;
-	prime_name_or_partners?: string;
 	new_recompete?: NewRecompeteType;
 	outcome?: string;
 	awardee?: string;
@@ -44,4 +43,10 @@ export interface Opportunity {
 	est_fte?: number;
 	notes?: string;
 	owner_id?: string;
+	ai_research?: string;
+	partner_id?: string;
+	project_deliverables?: string;
+	lcats?: string;
+	solicitation_number?: string;
+	probability?: number;
 }
