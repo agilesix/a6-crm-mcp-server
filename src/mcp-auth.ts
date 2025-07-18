@@ -31,6 +31,17 @@ export async function checkMcpAccess(googleId: string, email: string): Promise<M
 	// Debug logging
 	console.log("checkMcpAccess called with:", { googleId, email });
 	
+	// Test database connectivity
+	try {
+		const { data: testData, error: testError } = await supabase
+			.from("mcp_users")
+			.select("email")
+			.limit(1);
+		console.log("Database connectivity test:", { testData, testError });
+	} catch (err) {
+		console.error("Database connectivity test failed:", err);
+	}
+	
 	// First try to find by Google ID (skip if empty string)
 	let user = null;
 	if (googleId && googleId.trim() !== "") {
@@ -52,6 +63,17 @@ export async function checkMcpAccess(googleId: string, email: string): Promise<M
 	
 	// If not found by Google ID, try by email (for first-time users)
 	console.log("Trying email lookup for:", email);
+	
+	// Test without .single() first
+	const { data: emailUsers, error: emailListError } = await supabase
+		.from("mcp_users")
+		.select("*")
+		.eq("email", email)
+		.eq("mcp_access", true);
+	
+	console.log("Email lookup (list) result:", { emailUsers, emailListError, count: emailUsers?.length });
+	
+	// Now try with .single()
 	const { data: emailUser, error: emailError } = await supabase
 		.from("mcp_users")
 		.select("*")
@@ -59,7 +81,7 @@ export async function checkMcpAccess(googleId: string, email: string): Promise<M
 		.eq("mcp_access", true)
 		.single();
 	
-	console.log("Email lookup result:", { emailUser, emailError });
+	console.log("Email lookup (single) result:", { emailUser, emailError });
 	
 	if (emailUser && !emailError) {
 		console.log("Found user by email, updating Google ID");
