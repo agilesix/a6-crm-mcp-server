@@ -1,15 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
 export const createSupabaseClient = () => {
-	// Use environment variables - these are now set as secrets in Cloudflare Workers
 	const supabaseUrl = "https://fbwgavsxokjntjcsnett.supabase.co";
 	const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZid2dhdnN4b2tqbnRqY3NuZXR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjUyNjMsImV4cCI6MjA2NzY0MTI2M30.6NS15ED9dDQFQu3IoZJUj09I_GOlUpQJTrqKqKtl1IM";
 	
-	console.log("Creating Supabase client with URL:", supabaseUrl);
-	const client = createClient(supabaseUrl, supabaseKey);
-	console.log("Supabase client created successfully");
-	
-	return client;
+	return createClient(supabaseUrl, supabaseKey);
 };
 
 export type OpportunityType = "RFQ" | "RFI" | "RTEP" | "Other";

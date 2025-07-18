@@ -28,24 +28,8 @@ export interface McpUser {
 export async function checkMcpAccess(googleId: string, email: string): Promise<McpUser | null> {
 	const supabase = createSupabaseClient();
 	
-	// Debug logging
-	console.log("checkMcpAccess called with:", { googleId, email });
-	
-	// Test database connectivity
-	try {
-		const { data: testData, error: testError } = await supabase
-			.from("mcp_users")
-			.select("email")
-			.limit(1);
-		console.log("Database connectivity test:", { testData, testError });
-	} catch (err) {
-		console.error("Database connectivity test failed:", err);
-	}
-	
 	// First try to find by Google ID (skip if empty string)
-	let user = null;
 	if (googleId && googleId.trim() !== "") {
-		console.log("Trying Google ID lookup for:", googleId);
 		const { data: googleUser, error: googleError } = await supabase
 			.from("mcp_users")
 			.select("*")
@@ -53,27 +37,12 @@ export async function checkMcpAccess(googleId: string, email: string): Promise<M
 			.eq("mcp_access", true)
 			.single();
 		
-		console.log("Google ID lookup result:", { googleUser, googleError });
-		
 		if (googleUser && !googleError) {
-			console.log("Found user by Google ID:", googleUser.email);
 			return googleUser;
 		}
 	}
 	
 	// If not found by Google ID, try by email (for first-time users)
-	console.log("Trying email lookup for:", email);
-	
-	// Test without .single() first
-	const { data: emailUsers, error: emailListError } = await supabase
-		.from("mcp_users")
-		.select("*")
-		.eq("email", email)
-		.eq("mcp_access", true);
-	
-	console.log("Email lookup (list) result:", { emailUsers, emailListError, count: emailUsers?.length });
-	
-	// Now try with .single()
 	const { data: emailUser, error: emailError } = await supabase
 		.from("mcp_users")
 		.select("*")
@@ -81,26 +50,20 @@ export async function checkMcpAccess(googleId: string, email: string): Promise<M
 		.eq("mcp_access", true)
 		.single();
 	
-	console.log("Email lookup (single) result:", { emailUser, emailError });
-	
 	if (emailUser && !emailError) {
-		console.log("Found user by email, updating Google ID");
 		// Update the Google ID for future logins
 		await supabase
 			.from("mcp_users")
 			.update({ google_id: googleId })
 			.eq("id", emailUser.id);
 		
-		const updatedUser = { ...emailUser, google_id: googleId };
-		console.log("Returning updated user:", updatedUser.email);
-		return updatedUser;
+		return { ...emailUser, google_id: googleId };
 	}
 	
 	if (emailError && emailError.code !== "PGRST116") {
 		console.error("Error checking MCP access:", emailError);
 	}
 	
-	console.log("No user found, returning null");
 	return null;
 }
 

@@ -122,15 +122,10 @@ app.get("/callback", async (c) => {
 		email: string;
 	};
 
-	// Debug logging
-	console.log("Google OAuth callback - User info:", { id, name, email });
-
 	// Check MCP access permissions
 	const mcpUser = await checkMcpAccess(id, email);
-	console.log("MCP access check result:", { mcpUser: mcpUser ? { id: mcpUser.id, email: mcpUser.email, mcp_access: mcpUser.mcp_access } : null });
 	
 	if (!mcpUser || !mcpUser.mcp_access) {
-		console.log("Access denied - mcpUser:", mcpUser, "mcp_access:", mcpUser?.mcp_access);
 		return c.text("Access denied: No MCP permissions for this user. Please contact your administrator.", 403);
 	}
 
