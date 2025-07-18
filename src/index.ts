@@ -10,6 +10,13 @@ import { updateOpportunity, updateOpportunitySchema } from "./tools/update-oppor
 import { getOpportunity, getOpportunitySchema } from "./tools/get-opportunity";
 import { deleteOpportunity, deleteOpportunitySchema } from "./tools/delete-opportunity";
 
+// Opportunity Notes tools
+import { createOpportunityNote, createOpportunityNoteSchema } from "./tools/create-opportunity-note";
+import { listOpportunityNotes, listOpportunityNotesSchema } from "./tools/list-opportunity-notes";
+import { getOpportunityNote, getOpportunityNoteSchema } from "./tools/get-opportunity-note";
+import { updateOpportunityNote, updateOpportunityNoteSchema } from "./tools/update-opportunity-note";
+import { deleteOpportunityNote, deleteOpportunityNoteSchema } from "./tools/delete-opportunity-note";
+
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the MyMCP as this.props
 type Props = {
@@ -22,6 +29,12 @@ type Props = {
 		update_opportunity: boolean;
 		get_opportunity: boolean;
 		delete_opportunity: boolean;
+		// Opportunity Notes permissions
+		create_opportunity_note: boolean;
+		list_opportunity_notes: boolean;
+		get_opportunity_note: boolean;
+		update_opportunity_note: boolean;
+		delete_opportunity_note: boolean;
 	};
 };
 
@@ -211,6 +224,177 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 							{
 								type: "text",
 								text: `Error deleting opportunity: ${error instanceof Error ? error.message : "Unknown error"}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Create opportunity note tool
+		this.server.tool(
+			"create_opportunity_note",
+			createOpportunityNoteSchema,
+			async (params) => {
+				// Check permissions
+				if (!this.checkPermission("create_opportunity_note")) {
+					return this.accessDeniedResponse("create_opportunity_note");
+				}
+
+				try {
+					const result = await createOpportunityNote(params);
+					return {
+						content: [
+							{
+								type: "text",
+								text: `${result.message}\n\nNote Details:\n• ID: ${result.note.id}\n• Date: ${result.note.date}\n• Text: ${result.note.text}${result.note.attachments?.length ? `\n• Attachments: ${result.note.attachments.length}` : ""}`,
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error creating note: ${error instanceof Error ? error.message : "Unknown error"}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// List opportunity notes tool
+		this.server.tool(
+			"list_opportunity_notes",
+			listOpportunityNotesSchema,
+			async (params) => {
+				// Check permissions
+				if (!this.checkPermission("list_opportunity_notes")) {
+					return this.accessDeniedResponse("list_opportunity_notes");
+				}
+
+				try {
+					const result = await listOpportunityNotes(params);
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Found ${result.total} notes for opportunity: ${result.opportunity_name}\n\n${result.notes
+									.map(
+										(note) =>
+											`• [${note.id}] ${new Date(note.date).toLocaleDateString()} - ${note.text?.substring(0, 100)}${note.text && note.text.length > 100 ? "..." : ""}`
+									)
+									.join("\n")}\n\nShowing ${result.notes.length} results (offset: ${result.offset}, limit: ${result.limit})`,
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error listing notes: ${error instanceof Error ? error.message : "Unknown error"}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Get opportunity note tool
+		this.server.tool(
+			"get_opportunity_note",
+			getOpportunityNoteSchema,
+			async (params) => {
+				// Check permissions
+				if (!this.checkPermission("get_opportunity_note")) {
+					return this.accessDeniedResponse("get_opportunity_note");
+				}
+
+				try {
+					const result = await getOpportunityNote(params);
+					const note = result.note;
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Note Details:\n• ID: ${note.id}\n• Opportunity: ${result.opportunity_name}\n• Date: ${new Date(note.date).toLocaleString()}\n• Text: ${note.text}${note.attachments?.length ? `\n• Attachments: ${note.attachments.join(", ")}` : ""}\n• Created: ${note.created_at}\n• Updated: ${note.updated_at}`,
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error retrieving note: ${error instanceof Error ? error.message : "Unknown error"}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Update opportunity note tool
+		this.server.tool(
+			"update_opportunity_note",
+			updateOpportunityNoteSchema,
+			async (params) => {
+				// Check permissions
+				if (!this.checkPermission("update_opportunity_note")) {
+					return this.accessDeniedResponse("update_opportunity_note");
+				}
+
+				try {
+					const result = await updateOpportunityNote(params);
+					return {
+						content: [
+							{
+								type: "text",
+								text: `${result.message}\n\nUpdated Note Details:\n• ID: ${result.note.id}\n• Date: ${new Date(result.note.date).toLocaleString()}\n• Text: ${result.note.text}`,
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error updating note: ${error instanceof Error ? error.message : "Unknown error"}`,
+							},
+						],
+					};
+				}
+			}
+		);
+
+		// Delete opportunity note tool
+		this.server.tool(
+			"delete_opportunity_note",
+			deleteOpportunityNoteSchema,
+			async (params) => {
+				// Check permissions
+				if (!this.checkPermission("delete_opportunity_note")) {
+					return this.accessDeniedResponse("delete_opportunity_note");
+				}
+
+				try {
+					const result = await deleteOpportunityNote(params);
+					return {
+						content: [
+							{
+								type: "text",
+								text: `${result.message}\n\nDeleted Note:\n• ID: ${result.deleted_note.id}\n• Date: ${new Date(result.deleted_note.date).toLocaleDateString()}\n• Text: ${result.deleted_note.text?.substring(0, 100)}${result.deleted_note.text && result.deleted_note.text.length > 100 ? "..." : ""}`,
+							},
+						],
+					};
+				} catch (error) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Error deleting note: ${error instanceof Error ? error.message : "Unknown error"}`,
 							},
 						],
 					};
