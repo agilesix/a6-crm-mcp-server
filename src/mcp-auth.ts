@@ -28,40 +28,44 @@ export interface McpUser {
 export async function checkMcpAccess(googleId: string, email: string): Promise<McpUser | null> {
 	const supabase = createSupabaseClient();
 	
-	// First try to find by Google ID
-	let { data: user, error } = await supabase
-		.from("mcp_users")
-		.select("*")
-		.eq("google_id", googleId)
-		.eq("mcp_access", true)
-		.single();
-	
-	// If not found by Google ID, try by email (for first-time users)
-	if (error && error.code === "PGRST116") {
-		const { data: emailUser, error: emailError } = await supabase
+	// First try to find by Google ID (skip if empty string)
+	let user = null;
+	if (googleId && googleId.trim() !== "") {
+		const { data: googleUser, error: googleError } = await supabase
 			.from("mcp_users")
 			.select("*")
-			.eq("email", email)
+			.eq("google_id", googleId)
 			.eq("mcp_access", true)
 			.single();
 		
-		if (emailUser && !emailError) {
-			// Update the Google ID for future logins
-			await supabase
-				.from("mcp_users")
-				.update({ google_id: googleId })
-				.eq("id", emailUser.id);
-			
-			user = { ...emailUser, google_id: googleId };
+		if (googleUser && !googleError) {
+			return googleUser;
 		}
 	}
 	
-	if (error && error.code !== "PGRST116") {
-		console.error("Error checking MCP access:", error);
-		return null;
+	// If not found by Google ID, try by email (for first-time users)
+	const { data: emailUser, error: emailError } = await supabase
+		.from("mcp_users")
+		.select("*")
+		.eq("email", email)
+		.eq("mcp_access", true)
+		.single();
+	
+	if (emailUser && !emailError) {
+		// Update the Google ID for future logins
+		await supabase
+			.from("mcp_users")
+			.update({ google_id: googleId })
+			.eq("id", emailUser.id);
+		
+		return { ...emailUser, google_id: googleId };
 	}
 	
-	return user;
+	if (emailError && emailError.code !== "PGRST116") {
+		console.error("Error checking MCP access:", emailError);
+	}
+	
+	return null;
 }
 
 export async function updateLastLogin(userId: string): Promise<void> {
