@@ -50,3 +50,16 @@ export interface Opportunity {
 	solicitation_number?: string;
 	probability?: number;
 }
+
+export interface OpportunityNote {
+	id: string;
+	opportunity_id: string;
+	text?: string;
+	date?: string;
+	attachments?: string[];
+	created_at?: string;
+	updated_at?: string;
+	opportunities?: {
+		opportunity_name: string;
+	};
+}
