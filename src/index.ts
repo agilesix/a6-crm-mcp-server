@@ -66,7 +66,7 @@ export class MyMCP extends McpAgent<Env, Record<string, never>, Props> {
 								text: `Found ${result.total} opportunities:\n\n${result.opportunities
 									.map(
 										(opp) =>
-											`• ${opp.opportunity_name} (${opp.agency}) - Status: ${opp.status || "Not Started"} - Priority: ${opp.priority || "Not Set"}`
+											`• [${opp.id}] ${opp.opportunity_name} (${opp.agency}) - Status: ${opp.status || "Not Started"} - Priority: ${opp.priority || "Not Set"}`
 									)
 									.join("\n")}\n\nShowing ${result.total} results (offset: ${result.offset}, limit: ${result.limit})`,
 							},
