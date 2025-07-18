@@ -12,6 +12,12 @@ export interface McpUser {
 		update_opportunity: boolean;
 		get_opportunity: boolean;
 		delete_opportunity: boolean;
+		// Opportunity Notes permissions
+		create_opportunity_note: boolean;
+		list_opportunity_notes: boolean;
+		get_opportunity_note: boolean;
+		update_opportunity_note: boolean;
+		delete_opportunity_note: boolean;
 	};
 	allowed_user_id?: string;
 	created_at: string;
@@ -89,7 +95,13 @@ export async function createMcpUser(googleId: string, email: string, fullName: s
 				create_opportunity: false,
 				update_opportunity: false,
 				get_opportunity: true,
-				delete_opportunity: false
+				delete_opportunity: false,
+				// Opportunity Notes permissions - default to read-only
+				create_opportunity_note: false,
+				list_opportunity_notes: true,
+				get_opportunity_note: true,
+				update_opportunity_note: false,
+				delete_opportunity_note: false
 			}
 		}])
 		.select()
